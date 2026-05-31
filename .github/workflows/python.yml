@@ -48,3 +48,33 @@ jobs:
           python-version: "3.12"
       - run: pip install -e ".[dev,agno]"
       - run: python -m pytest tests/ -q -k "agno or conformance or guard_core"
+
+  adapter-google-adk:
+    name: adapter (google-adk @ latest)
+    runs-on: ubuntu-latest
+    continue-on-error: true   # community/best-effort tier
+    defaults:
+      run:
+        working-directory: packages/python/kiff-guard
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e ".[dev,google-adk]"
+      - run: python -m pytest tests/ -q -k "google_adk or conformance or guard_core"
+
+  adapter-pydantic-ai:
+    name: adapter (pydantic-ai @ latest)
+    runs-on: ubuntu-latest
+    continue-on-error: true   # community/best-effort tier
+    defaults:
+      run:
+        working-directory: packages/python/kiff-guard
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e ".[dev,pydantic-ai]"
+      - run: python -m pytest tests/ -q -k "pydantic_ai or conformance or guard_core"

@@ -114,6 +114,51 @@ def test_langgraph_conformance():
     run_conformance(AdapterDriver(name="langgraph", drive=_drive_langgraph))
 
 
+# --- Google ADK: vote. before_tool_callback(tool, args, tool_context);
+#     returns a dict to block, None to allow. ADK runs the tool itself. --
+def _drive_google_adk(guard, tool, args, *, will_run):
+    from kiff_guard.adapters.google_adk import kiff_before_tool_callback
+
+    class _Tool:
+        def __init__(self, name):
+            self.name = name
+
+    cb = kiff_before_tool_callback(guard)
+    out = cb(tool=_Tool(tool), args=args, tool_context=None)
+    # ADK doesn't run the tool itself; "ran" = not blocked (None = proceed).
+    return out is None
+
+
+# --- Pydantic AI: vote. before_tool_execute hook; returns args to allow,
+#     raises SkipToolExecution to block. The framework runs the tool. -----
+class _FakeSkip(Exception):
+    pass
+
+
+def _drive_pydantic_ai(guard, tool, args, *, will_run):
+    from kiff_guard.adapters.pydantic_ai import kiff_before_tool_execute
+
+    class _Call:
+        def __init__(self, name):
+            self.tool_name = name
+
+    # Inject a test SkipToolExecution so no pydantic-ai install is needed.
+    hook = kiff_before_tool_execute(guard, skip_factory=lambda result: _FakeSkip(result))
+    try:
+        hook(ctx=None, call=_Call(tool), tool_def=None, args=args)
+    except _FakeSkip:
+        return False  # withheld -> tool skipped
+    return True  # returned args -> tool will run
+
+
+def test_google_adk_conformance():
+    run_conformance(AdapterDriver(name="google-adk", drive=_drive_google_adk))
+
+
+def test_pydantic_ai_conformance():
+    run_conformance(AdapterDriver(name="pydantic-ai", drive=_drive_pydantic_ai))
+
+
 if __name__ == "__main__":
     fns = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
     for fn in fns:
