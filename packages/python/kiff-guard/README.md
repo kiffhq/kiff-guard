@@ -79,7 +79,10 @@ once; an adapter adds no governance logic of its own.
 | Hermes (Nous) | `kiff_guard.adapters.hermes` | shipped |
 | LangGraph / LangChain | `kiff_guard.adapters.langgraph` | shipped |
 | OpenAI Agents SDK | `kiff_guard.adapters.openai_agents` | shipped |
-| Pydantic AI, Google ADK, Microsoft Agent Framework, Strands, Haystack, LlamaIndex, OpenClaw | — | planned |
+| Google ADK | `kiff_guard.adapters.google_adk` | shipped |
+| Pydantic AI | `kiff_guard.adapters.pydantic_ai` | shipped |
+| Microsoft Agent Framework, Strands, Haystack, LlamaIndex | — | planned |
+| OpenClaw (TypeScript) | needs `kiff-guard-js` | planned |
 
 See the framework survey on kiffhq/kiff-cloud#239 for each one's seam,
 and `docs/integration/frameworks/` for per-framework research.

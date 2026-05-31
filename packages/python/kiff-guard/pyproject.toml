@@ -28,6 +28,7 @@ agno = ["agno"]
 langgraph = ["langgraph"]
 openai = ["openai-agents"]
 pydantic-ai = ["pydantic-ai"]
+google-adk = ["google-adk"]
 dev = ["pytest"]
 
 [project.urls]
