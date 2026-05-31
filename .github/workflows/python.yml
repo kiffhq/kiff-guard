@@ -1,0 +1,50 @@
+name: python
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    name: test (py ${{ matrix.python }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # The SDK floor is 3.9 (offline core is stdlib-only). Adapters that
+        # need a framework only run their own deps on the versions those
+        # frameworks support; the core + conformance run everywhere.
+        python: ["3.9", "3.11", "3.13"]
+    defaults:
+      run:
+        working-directory: packages/python/kiff-guard
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install (core + dev)
+        run: pip install -e ".[dev]"
+      - name: Tests (offline core + conformance, all adapters)
+        run: python -m pytest tests/ -q
+
+  # Per-adapter jobs run each adapter against its framework's LATEST so
+  # upstream breakage shows as a red badge -> a community PR, not silent
+  # rot (RFC 015 maintenance model). Adapters import their framework
+  # lazily, so the core suite above passes without any framework; these
+  # jobs add the framework and exercise the live import path.
+  adapter-agno:
+    name: adapter (agno @ latest)
+    runs-on: ubuntu-latest
+    continue-on-error: true   # community/best-effort tier
+    defaults:
+      run:
+        working-directory: packages/python/kiff-guard
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e ".[dev,agno]"
+      - run: python -m pytest tests/ -q -k "agno or conformance or guard_core"

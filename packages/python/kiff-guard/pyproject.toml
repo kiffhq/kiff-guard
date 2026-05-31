@@ -1,0 +1,38 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "kiff-guard"
+version = "0.1.0"
+description = "Drop-in guard that puts KIFF clearance in front of any agent's tool calls — observe to audit, enforce to govern."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+authors = [{ name = "KIFF" }]
+keywords = ["kiff", "agents", "governance", "tool-calls", "audit", "guardrails"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Intended Audience :: Developers",
+]
+# Zero required runtime deps: the core speaks the KIFF HTTP API over the
+# stdlib (urllib), matching examples/refund-agno. Framework adapters add
+# their own framework as an optional extra.
+dependencies = []
+
+[project.optional-dependencies]
+# Each adapter's host framework is optional — install only what you use.
+# The core never imports a framework; adapters import lazily.
+agno = ["agno"]
+langgraph = ["langgraph"]
+openai = ["openai-agents"]
+pydantic-ai = ["pydantic-ai"]
+dev = ["pytest"]
+
+[project.urls]
+Homepage = "https://kiff.dev"
+Documentation = "https://docs.kiff.dev"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/kiff_guard"]
