@@ -41,6 +41,26 @@ const client = new HTTPClient({
 const guard = new Guard({ client, tenant: "<tenant>", agent: "support", mode: "enforce" });
 ```
 
+## Connect to KIFF Cloud
+
+Call `connect` when you want the hosted dashboard to show a live guard
+runtime. Run it at startup and periodically as a heartbeat. It is explicit so
+local `observe` mode stays zero-config and never phones home unless you provide
+a Cloud client.
+
+```ts
+await guard.connect({
+  adapter: "openclaw",
+  project: "finance",
+  environment: "prod",
+  workflow: "duplicate-payment",
+  sdkVersion: "0.1.0",
+});
+```
+
+Cloud stores the tenant from the API key plus the project, environment, agent,
+workflow, adapter, SDK version, mode, first/last seen time, and heartbeat count.
+
 ## Adapters
 
 | Framework | Lang | Shape | Status |

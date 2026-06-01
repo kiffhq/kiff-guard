@@ -38,12 +38,15 @@ export {
 } from "./decision.js";
 export {
   type Client,
+  type GuardConnectInput,
+  type GuardConnection,
+  type GuardConnector,
   type ToolBinding,
   type HTTPClientOptions,
   ToolMap,
   HTTPClient,
 } from "./client.js";
-export { Guard, type GuardMode, type GuardOptions } from "./guard.js";
+export { Guard, type GuardConnectOptions, type GuardMode, type GuardOptions } from "./guard.js";
 export { exportYaml } from "./draft.js";
 
 export const VERSION = "0.1.0";

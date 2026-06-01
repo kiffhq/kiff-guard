@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { Guard } from "./guard.js";
 import { Decision, Hold } from "./decision.js";
-import type { Client } from "./client.js";
+import type { Client, GuardConnectInput, GuardConnection, GuardConnector } from "./client.js";
 
 class StubClient implements Client {
   calls = 0;
@@ -10,6 +10,22 @@ class StubClient implements Client {
     this.calls += 1;
     if (this.raises) throw new Error("transport down");
     return new Decision(this.outcome, this.reason, "prop_1");
+  }
+}
+
+class StubConnector extends StubClient implements GuardConnector {
+  connectCalls: GuardConnectInput[] = [];
+  async connectGuard(input: GuardConnectInput): Promise<GuardConnection> {
+    this.connectCalls.push(input);
+    return {
+      project: input.project ?? "default",
+      environment: input.environment ?? "dev",
+      agentId: input.agentId,
+      workflow: input.workflow ?? "default",
+      adapter: input.adapter,
+      sdkVersion: input.sdkVersion,
+      mode: input.mode,
+    };
   }
 }
 
@@ -116,5 +132,39 @@ describe("evaluate (middleware convenience)", () => {
     ).rejects.toBeInstanceOf(Hold);
     expect(ran).toBe(false);
     expect(g.receipts.at(-1)!.executed).toBe(false);
+  });
+});
+
+describe("connect", () => {
+  it("forwards guard runtime identity to a Cloud-capable client", async () => {
+    const client = new StubConnector();
+    const guard = new Guard({ client, tenant: "t", agent: "ap-agent", mode: "enforce" });
+
+    const connection = await guard.connect({
+      adapter: "openclaw",
+      project: "finance",
+      environment: "prod",
+      workflow: "duplicate-payment",
+      sdkVersion: "0.1.0",
+    });
+
+    expect(client.connectCalls).toEqual([
+      {
+        agentId: "ap-agent",
+        adapter: "openclaw",
+        mode: "enforce",
+        project: "finance",
+        environment: "prod",
+        workflow: "duplicate-payment",
+        sdkVersion: "0.1.0",
+      },
+    ]);
+    expect(connection.agentId).toBe("ap-agent");
+    expect(connection.workflow).toBe("duplicate-payment");
+  });
+
+  it("does not phone home unless a Cloud-capable client is provided", async () => {
+    const guard = new Guard({ mode: "observe", agent: "local-agent" });
+    await expect(guard.connect({ adapter: "openclaw" })).rejects.toThrow(/connectGuard/);
   });
 });
