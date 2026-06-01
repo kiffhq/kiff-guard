@@ -27,7 +27,7 @@
  */
 
 import { Catalog } from "./catalog.js";
-import type { Client } from "./client.js";
+import type { Client, GuardConnection, GuardConnector } from "./client.js";
 import { Decision, Hold, type Receipt } from "./decision.js";
 
 export type GuardMode = "observe" | "enforce";
@@ -41,6 +41,18 @@ export interface GuardOptions {
   catalog?: Catalog;
   /** share a ledger across guards for one audit log over every agent. */
   ledger?: Receipt[];
+}
+
+export interface GuardConnectOptions {
+  /**
+   * Adapter/runtime name, e.g. "openclaw". Required so Cloud can group
+   * live agents by integration surface without inspecting tool traffic.
+   */
+  adapter: string;
+  project?: string;
+  environment?: string;
+  workflow?: string;
+  sdkVersion?: string;
 }
 
 export class Guard {
@@ -125,6 +137,26 @@ export class Guard {
   }
 
   /**
+   * Opt into KIFF Cloud runtime discovery. This is separate from observe
+   * and enforce so zero-config audit stays local unless the caller
+   * provides a Cloud-capable client and calls connect().
+   */
+  async connect(opts: GuardConnectOptions): Promise<GuardConnection> {
+    if (!isGuardConnector(this.client)) {
+      throw new Error("connect requires a client with connectGuard");
+    }
+    return this.client.connectGuard({
+      agentId: this.agent,
+      adapter: opts.adapter,
+      mode: this.mode,
+      project: opts.project,
+      environment: opts.environment,
+      workflow: opts.workflow,
+      sdkVersion: opts.sdkVersion,
+    });
+  }
+
+  /**
    * Record exactly one governed receipt for an action the framework
    * executed after an allowed decideOnly. The vote-shape adapter's single
    * audit write on the allowed path.
@@ -175,4 +207,8 @@ export class Guard {
       proposalId: decision.proposalId,
     });
   }
+}
+
+function isGuardConnector(client: Client | undefined): client is Client & GuardConnector {
+  return !!client && typeof (client as Partial<GuardConnector>).connectGuard === "function";
 }

@@ -76,6 +76,12 @@ export OPENAI_API_KEY="sk-proj-..."
 export OPENCLAW_GATEWAY_TOKEN="$(openssl rand -hex 32)"
 echo "$OPENCLAW_GATEWAY_TOKEN" > .env
 
+# Optional: make this runtime appear in KIFF Cloud's dashboard.
+export KIFF_CLOUD_API_KEY="kiff_live_..."
+export KIFF_CLOUD_PROJECT="cookbook"
+export KIFF_CLOUD_ENVIRONMENT="local"
+export KIFF_CLOUD_WORKFLOW="duplicate-payment"
+
 # Build the derived image (plugin baked into /app/dist/extensions)
 docker build -t kiff-cookbook-openclaw:local -f openclaw/Dockerfile .
 

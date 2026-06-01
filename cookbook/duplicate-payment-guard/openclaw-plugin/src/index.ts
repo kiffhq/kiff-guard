@@ -17,13 +17,25 @@
 // Config (from plugins.entries["kiff-guard-demo"].config):
 //   kiffBaseUrl  - the KIFF decide server (http://kiff-decide:8081)
 //   apAppUrl     - the ap-app system of record (http://ap-app:8082)
+//
+// Optional Cloud discovery:
+//   KIFF_CLOUD_API_KEY      - dashboard API key for runtime registration
+//   KIFF_CLOUD_API_URL      - cloud API, defaults to https://api.kiff.dev
+//   KIFF_CLOUD_PROJECT      - project grouping, defaults to cookbook
+//   KIFF_CLOUD_ENVIRONMENT  - environment grouping, defaults to local
+//   KIFF_CLOUD_WORKFLOW     - workflow grouping, defaults to duplicate-payment
 
 import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
-import { Guard, HTTPClient, ToolMap } from "@kiffhq/kiff-guard";
+import { Guard, HTTPClient, ToolMap, VERSION } from "@kiffhq/kiff-guard";
 import { kiffBeforeToolCall } from "@kiffhq/kiff-guard/adapters/openclaw";
 
 const KIFF_BASE = process.env.KIFF_BASE_URL || "http://kiff-decide:8081";
 const AP_APP = process.env.AP_APP_URL || "http://ap-app:8082";
+const KIFF_CLOUD_API_KEY = process.env.KIFF_CLOUD_API_KEY || "";
+const KIFF_CLOUD_API_URL = process.env.KIFF_CLOUD_API_URL || "https://api.kiff.dev";
+const KIFF_CLOUD_PROJECT = process.env.KIFF_CLOUD_PROJECT || "cookbook";
+const KIFF_CLOUD_ENVIRONMENT = process.env.KIFF_CLOUD_ENVIRONMENT || "local";
+const KIFF_CLOUD_WORKFLOW = process.env.KIFF_CLOUD_WORKFLOW || "duplicate-payment";
 
 // Bind the agent's `pay_invoice` tool to the PAY_INVOICE action contract.
 // entityArg names the tool argument that carries the entity id — the
@@ -41,11 +53,46 @@ const client = new HTTPClient({
 // blocks the tool. fail-closed by default.
 const guard = new Guard({ client, tenant: "demo", agent: "ap-agent", mode: "enforce" });
 
+const cloudGuard = KIFF_CLOUD_API_KEY
+  ? new Guard({
+      client: new HTTPClient({
+        apiKey: KIFF_CLOUD_API_KEY,
+        toolMap,
+        baseUrl: KIFF_CLOUD_API_URL,
+      }),
+      tenant: "cloud",
+      agent: "ap-agent",
+      mode: "enforce",
+    })
+  : undefined;
+let warnedCloudRegistration = false;
+
+function refreshCloudConnection(): void {
+  if (!cloudGuard) return;
+  void cloudGuard
+    .connect({
+      adapter: "openclaw",
+      project: KIFF_CLOUD_PROJECT,
+      environment: KIFF_CLOUD_ENVIRONMENT,
+      workflow: KIFF_CLOUD_WORKFLOW,
+      sdkVersion: VERSION,
+    })
+    .catch((err) => {
+      if (warnedCloudRegistration) return;
+      warnedCloudRegistration = true;
+      const reason = err instanceof Error ? err.message : String(err);
+      console.warn(`KIFF Cloud registration failed: ${reason}`);
+    });
+}
+
 export default definePluginEntry({
   id: "kiff-guard-demo",
   name: "KIFF Guard Demo",
   description: "Pay-invoice tool gated by KIFF clearance (before_tool_call).",
   register(api: any) {
+    refreshCloudConnection();
+    if (cloudGuard) setInterval(refreshCloudConnection, 60_000);
+
     // 1. The gate: every before_tool_call goes through KIFF.
     api.on("before_tool_call", kiffBeforeToolCall(guard), { priority: 50 });
 

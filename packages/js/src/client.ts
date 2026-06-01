@@ -33,6 +33,37 @@ export interface Client {
   decide(tenant: string, agent: string, tool: string, args: Record<string, unknown>): Promise<Decision>;
 }
 
+/** Runtime metadata sent to KIFF Cloud when a guard opts into discovery. */
+export interface GuardConnectInput {
+  agentId: string;
+  adapter: string;
+  mode: "observe" | "enforce";
+  project?: string;
+  environment?: string;
+  workflow?: string;
+  sdkVersion?: string;
+}
+
+/** Cloud's last-known runtime row for one tenant/project/env/agent/workflow. */
+export interface GuardConnection {
+  tenantId?: string;
+  project: string;
+  environment: string;
+  agentId: string;
+  workflow: string;
+  adapter: string;
+  sdkVersion?: string;
+  mode: "observe" | "enforce";
+  firstSeenAt?: string;
+  lastSeenAt?: string;
+  seenCount?: number;
+}
+
+/** Optional client capability for registering a live guard runtime. */
+export interface GuardConnector {
+  connectGuard(input: GuardConnectInput): Promise<GuardConnection>;
+}
+
 /** How one tool maps onto a KIFF action contract. */
 export interface ToolBinding {
   /** the action_name the tenant's domain declares. */
@@ -150,6 +181,37 @@ export class HTTPClient implements Client {
     return new Decision(outcome, reason, proposalId);
   }
 
+  async connectGuard(input: GuardConnectInput): Promise<GuardConnection> {
+    if (!input.agentId) {
+      throw new Error("agentId is required");
+    }
+    if (!input.adapter) {
+      throw new Error("adapter is required");
+    }
+
+    const body: Record<string, unknown> = {
+      agent_id: input.agentId,
+      adapter: input.adapter,
+      mode: input.mode,
+    };
+    if (input.project) body.project = input.project;
+    if (input.environment) body.environment = input.environment;
+    if (input.workflow) body.workflow = input.workflow;
+    if (input.sdkVersion) body.sdk_version = input.sdkVersion;
+
+    const { status, payload } = await this.post("/v1/guard/connect", body);
+    if (status === 0) {
+      const message = typeof payload.message === "string" ? payload.message : "transport error";
+      throw new Error(message);
+    }
+    if (status < 200 || status >= 300) {
+      const message = typeof payload.error === "string" ? payload.error : `connect returned status ${status}`;
+      throw new Error(message);
+    }
+
+    return normalizeGuardConnection(payload);
+  }
+
   private async post(
     path: string,
     body: Record<string, unknown>,
@@ -185,4 +247,29 @@ export class HTTPClient implements Client {
       clearTimeout(timer);
     }
   }
+}
+
+function normalizeGuardConnection(payload: Record<string, any>): GuardConnection {
+  const mode = payload.mode === "enforce" ? "enforce" : "observe";
+  return {
+    tenantId: stringOrUndefined(payload.tenant_id),
+    project: stringOrDefault(payload.project, "default"),
+    environment: stringOrDefault(payload.environment, "dev"),
+    agentId: stringOrDefault(payload.agent_id, ""),
+    workflow: stringOrDefault(payload.workflow, "default"),
+    adapter: stringOrDefault(payload.adapter, ""),
+    sdkVersion: stringOrUndefined(payload.sdk_version),
+    mode,
+    firstSeenAt: stringOrUndefined(payload.first_seen_at),
+    lastSeenAt: stringOrUndefined(payload.last_seen_at),
+    seenCount: typeof payload.seen_count === "number" ? payload.seen_count : undefined,
+  };
+}
+
+function stringOrDefault(value: unknown, fallback: string): string {
+  return typeof value === "string" && value ? value : fallback;
+}
+
+function stringOrUndefined(value: unknown): string | undefined {
+  return typeof value === "string" && value ? value : undefined;
 }
