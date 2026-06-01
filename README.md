@@ -85,13 +85,44 @@ are community/best-effort. Each adapter pins the framework version range
 it's tested against, and CI runs against each framework's latest so
 breakage shows as a red badge, not a silent rot.
 
-## TypeScript SDK (planned)
+## TypeScript SDK
 
-`packages/js/` is reserved for `kiff-guard-js`. OpenClaw (a Node/TS
-gateway) is the forcing function, and it unlocks the broader JS agent
-ecosystem (LangGraph.js, Vercel AI SDK, Mastra). The decide-API contract
-the SDKs speak is versioned and frozen (`/v1`, additive-only) so both
-language SDKs target the same stable interface.
+See [`packages/js/README.md`](./packages/js/README.md) for install,
+quickstart, and usage.
+
+```bash
+npm install @kiffhq/kiff-guard
+```
+
+```typescript
+import { Guard } from "@kiffhq/kiff-guard";
+import { registerKiffGuard } from "@kiffhq/kiff-guard/adapters/openclaw";
+
+const guard = new Guard({ mode: "observe" });  // zero-config audit
+// register on OpenClaw plugin api (see package README for full example)
+```
+
+The TypeScript SDK is a faithful port of the Python SDK: same architecture
+(Guard, Decision, Catalog, Client), same primitives (observe/decideOnly/
+recordExecuted/recordWithheld/evaluate), same invariants. Both SDKs speak
+the same versioned decide contract (`/v1`, additive-only).
+
+## Cookbook
+
+See [`cookbook/README.md`](./cookbook/README.md) for runnable recipes
+proving KIFF stops risky agent actions before they execute.
+
+Each recipe is a **complete, runnable proof**: real models, real agent
+frameworks, real side effects, real KIFF runtime. Deploy locally or on
+your own infra, run the scenario, see the verdict.
+
+**Recipe #1: [duplicate-payment-guard](./cookbook/duplicate-payment-guard/)**  
+An AP agent pays a $10,000 invoice. A flaky connection drops the success
+response → the transport retries 10 times → each retry would debit again
+($100,000 risk). KIFF blocks the retries because the invoice is now PAID.
+
+Verdict: WITHOUT KIFF = $100,000 / 10 debits; WITH KIFF = $10,000 / 1
+debit, 9 blocked.
 
 ## License
 
