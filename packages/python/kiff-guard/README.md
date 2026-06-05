@@ -84,7 +84,7 @@ once; an adapter adds no governance logic of its own.
 | Strands Agents | `kiff_guard.adapters.strands` | shipped |
 | Haystack Agents | `kiff_guard.adapters.haystack` | shipped |
 | Microsoft Agent Framework | `kiff_guard.adapters.microsoft_agent_framework` | shipped |
-| LlamaIndex | — | planned |
+| LlamaIndex | `kiff_guard.adapters.llama_index` | shipped |
 | OpenClaw (TypeScript) | needs `kiff-guard-js` | planned |
 
 See the framework survey on kiffhq/kiff-cloud#239 for each one's seam,
@@ -176,6 +176,33 @@ learns, and never blocks. In enforce mode (`Guard(client=..., mode=
 (`status="error"`) carrying the reason **without** running the tool — the
 same short-circuit pattern LangChain's built-in `ShellAllowListMiddleware`
 uses. Install the framework with `pip install "kiff-guard[langgraph]"`.
+
+#### LlamaIndex
+
+Subclass `AgentWorkflow` via `GuardedAgentWorkflow`, which overrides the
+`call_tool` step to insert the KIFF gate before `_call_tool` runs:
+
+```python
+from llama_index.core.agent.workflow import FunctionAgent
+from llama_index.llms.openai import OpenAI
+from kiff_guard import Guard
+from kiff_guard.adapters.llama_index import GuardedAgentWorkflow
+
+guard = Guard(mode="observe")     # zero-config audit; no KIFF account
+
+workflow = GuardedAgentWorkflow(
+    agents=[FunctionAgent(tools=[...], llm=OpenAI(model="gpt-4o-mini"))],
+    guard=guard,
+)
+result = await workflow.run(user_msg="...")
+```
+
+The seam is `AgentWorkflow.call_tool` — a `@step` that receives a
+`ToolCall` event (`tool_name`, `tool_kwargs`, `tool_id`) before the tool
+body runs. This is a **middleware shape**: the guard closure over
+`_call_tool` is the continuation. In enforce mode a withheld decision
+raises `Hold` so the tool never runs. Install with
+`pip install "kiff-guard[llama-index]"`.
 
 ## Conformance & verification
 
