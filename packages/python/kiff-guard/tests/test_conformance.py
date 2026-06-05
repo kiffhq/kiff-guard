@@ -350,8 +350,7 @@ def _drive_llama_index(guard, tool, args, *, will_run):
         return True
 
     # LlamaIndex is available: exercise via the real overridden step.
-    from llama_index.core.agent.workflow import FunctionAgent
-    from llama_index.llms.openai import OpenAI  # noqa: F401 (optional dep)
+    from llama_index.core.agent.workflow import FunctionAgent  # noqa: F401
 
     # Extract the overridden method's function from a dummy instance whose
     # get_tools and _call_tool are patched.
