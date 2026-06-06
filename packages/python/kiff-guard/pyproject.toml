@@ -43,7 +43,7 @@ strands = ["strands-agents"]
 haystack = ["haystack-ai"]
 microsoft-agent-framework = ["agent-framework-core"]
 llama-index = ["llama-index-core"]
-dev = ["pytest"]
+dev = ["pytest", "pyyaml"]
 
 [project.urls]
 Homepage = "https://kiff.dev"
