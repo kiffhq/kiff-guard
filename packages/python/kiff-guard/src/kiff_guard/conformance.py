@@ -23,6 +23,8 @@ An adapter is conformant if, driven through its own seam, it upholds:
     E4  an UNKNOWN outcome fails SAFE — withholds (does NOT run), one
         governed executed=False receipt (RFC 017; old SDK + new cloud
         outcome must never fail open)
+    E5  a guard/transport ERROR (decide raises) fails SAFE — the tool
+        does NOT run (fail-closed is the default; fail-open is opt-in)
 
 To run the suite against an adapter, provide an `AdapterDriver`: a small
 shim that knows how to invoke ONE tool call through the adapter and report
@@ -60,14 +62,18 @@ class ConformanceClient:
     never decides) and returns a scripted outcome. Records the args it was
     given so E3 can assert no authority/roles field is injected."""
 
-    def __init__(self, outcome: str = "allowed", reason: str = "", proposal_id: str = "p_conf"):
+    def __init__(self, outcome: str = "allowed", reason: str = "", proposal_id: str = "p_conf",
+                 raises: bool = False):
         self.calls = 0
         self.seen_args: List[Dict[str, Any]] = []
         self._d = Decision(outcome=outcome, reason=reason, proposal_id=proposal_id)
+        self._raises = raises
 
     def decide(self, tenant: str, agent: str, tool: str, args: Dict[str, Any]) -> Decision:
         self.calls += 1
         self.seen_args.append(dict(args) if isinstance(args, dict) else {})
+        if self._raises:
+            raise RuntimeError("decide transport error (conformance E5)")
         return self._d
 
 
@@ -150,3 +156,20 @@ def run_conformance(driver: AdapterDriver) -> None:
     gov = [r for r in guard.receipts if r.state == "governed"]
     assert len(gov) == 1, f"[{n}] E4: unknown outcome must record exactly one governed receipt"
     assert gov[0].executed is False, f"[{n}] E4: unknown-outcome receipt must be executed=False"
+
+    # --- E5: a guard/transport ERROR must fail SAFE (withhold), never run -
+    # If decide() itself raises (transport down, timeout, a bug), enforce
+    # must NOT run the tool. The adapter may raise Hold, withhold, or let
+    # the error propagate — the invariant is only that the tool body does
+    # not execute. (E1/E2 already establish that adapters decide BEFORE
+    # running, so a raised decide() means the tool cannot have run; a drive
+    # that raises is therefore a "did not run" outcome.) fail-open is an
+    # opt-in per-adapter setting and is not exercised here — the default,
+    # which conformance pins, is fail-closed.
+    client = ConformanceClient(raises=True)
+    guard = _fresh(client=client, mode="enforce")
+    try:
+        ran = driver.drive(guard, "delete_account", {"account_id": "a9"}, will_run=False)
+    except Exception:
+        ran = False  # adapter raised on the guard error -> tool did not run
+    assert ran is False, f"[{n}] E5: a guard/transport error must NOT run the tool (fail-closed)"
