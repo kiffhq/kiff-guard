@@ -129,6 +129,19 @@ ungated. Observe mode adds no blocking latency at all.
 
 ## 3. The decision copilot is out of scope (separate repo)
 
+> **Update (2026-06-07).** The separate-repo decision copilot —
+> explored as `kiffhq/kiffit` — has been **folded**. As a standalone
+> product it failed the wedge test (on a runtime you don't own you can
+> observe and explain but not withhold, so it collapses into an
+> advisory linter with no buyer). Its one durable idea — *grounded
+> explanation of a verdict* — is reabsorbed into kiff-guard / Studio,
+> where a real verdict and receipt already exist. See
+> `kiffhq/kiffit` RFC 002 (closed, with carry-forwards). This does not
+> change anything in this RFC: the deterministic IDE guard below is
+> unaffected, and the boundary it draws (no LLM inside the guard)
+> still holds — the explanation now lives one layer up, not in a
+> third repo.
+
 The "explain each option's impact" idea is an **LLM-backed advisory layer**.
 It is explicitly **not kiff-guard** and does not belong in this repo: its
 engine is a model, and the moment an LLM lives near the guard the guard
@@ -178,9 +191,12 @@ the boundary; this RFC does not specify it.
    answer decides whether stateful gates (freeze/review) are expressible.
 3. Does the IDE expose enough UI surface to paint the play button from a
    hook verdict, or is the verdict only available as allow/block (no color)?
-4. Where does the decision copilot live — same repo as a clearly-separated
-   optional package, or its own repo? (Leaning: its own, to keep the guard
-   dependency-free and LLM-free.)
+4. ~~Where does the decision copilot live — same repo as a clearly-separated
+   optional package, or its own repo?~~ **Resolved (2026-06-07): neither.**
+   The separate-repo copilot (`kiffhq/kiffit`) is folded; grounded
+   explanation is reabsorbed into kiff-guard / Studio, keeping the guard
+   itself dependency-free and LLM-free (the explanation sits one layer up,
+   never inside the guard). See `kiffhq/kiffit` RFC 002.
 
 ## 7. Non-goals
 
