@@ -1,5 +1,5 @@
 {
-  "name": "@kiffhq/kiff-guard",
+  "name": "@kiff/kiff-guard",
   "version": "0.1.0",
   "description": "Drop-in guard that puts KIFF clearance in front of any agent's tool calls — observe to audit, enforce to govern. TypeScript SDK.",
   "license": "MIT",
@@ -32,6 +32,6 @@
   "homepage": "https://kiff.dev",
   "repository": {
     "type": "git",
-    "url": "https://github.com/kiffhq/kiff-guard"
+    "url": "https://github.com/kiff/kiff-guard"
   }
 }

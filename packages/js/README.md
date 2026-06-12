@@ -1,4 +1,4 @@
-# @kiffhq/kiff-guard (TypeScript)
+# @kiff/kiff-guard (TypeScript)
 
 Drop-in KIFF clearance for any agent's tool calls — **observe** to audit,
 **enforce** to govern. The TypeScript SDK, a faithful port of the Python
@@ -20,8 +20,8 @@ Zero required runtime dependencies (uses the global `fetch`, Node >= 18).
 ## Quickstart (zero-config audit, no KIFF account)
 
 ```ts
-import { Guard, exportYaml } from "@kiffhq/kiff-guard";
-import { registerKiffGuard } from "@kiffhq/kiff-guard/adapters/openclaw";
+import { Guard, exportYaml } from "@kiff/kiff-guard";
+import { registerKiffGuard } from "@kiff/kiff-guard/adapters/openclaw";
 
 const guard = new Guard({ mode: "observe" });
 // attach via the OpenClaw plugin (below); run the agent; then:
@@ -32,7 +32,7 @@ console.log(exportYaml("my-domain", guard.catalog));
 ## Enforce (with a tenant + active domain)
 
 ```ts
-import { Guard, HTTPClient, ToolMap } from "@kiffhq/kiff-guard";
+import { Guard, HTTPClient, ToolMap } from "@kiff/kiff-guard";
 
 const client = new HTTPClient({
   apiKey: "kiff_live_...",                       // mint in the dashboard
@@ -54,7 +54,7 @@ there is nothing extra to install or run.
 loop is about to run a tool:
 
 ```ts
-import { Guard } from "@kiffhq/kiff-guard";
+import { Guard } from "@kiff/kiff-guard";
 
 const guard = new Guard({ mode: "observe" });   // no client, no tenant
 
@@ -70,7 +70,7 @@ anything that isn't an explicit `allowed`, so an unknown future outcome
 fails safe), then record exactly one receipt:
 
 ```ts
-import { Guard, HTTPClient, ToolMap } from "@kiffhq/kiff-guard";
+import { Guard, HTTPClient, ToolMap } from "@kiff/kiff-guard";
 
 const client = new HTTPClient({
   apiKey: "kiff_live_...",
@@ -135,8 +135,8 @@ Vercel AI SDK, Mastra) follow.
 
 ```ts
 import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
-import { Guard } from "@kiffhq/kiff-guard";
-import { registerKiffGuard } from "@kiffhq/kiff-guard/adapters/openclaw";
+import { Guard } from "@kiff/kiff-guard";
+import { registerKiffGuard } from "@kiff/kiff-guard/adapters/openclaw";
 
 const guard = new Guard({ mode: "observe" }); // or enforce with a client
 

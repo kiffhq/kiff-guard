@@ -1,5 +1,5 @@
 /**
- * @kiffhq/kiff-guard — drop-in KIFF clearance for any agent's tool calls.
+ * @kiff/kiff-guard — drop-in KIFF clearance for any agent's tool calls.
  *
  * The TypeScript SDK, a faithful port of the Python `kiff_guard` core.
  * Speaks the same versioned decide contract (RFC 017, /v1) and upholds
@@ -8,14 +8,14 @@
  *
  * Quickstart (zero-config audit, no KIFF account needed):
  *
- *     import { Guard } from "@kiffhq/kiff-guard";
+ *     import { Guard } from "@kiff/kiff-guard";
  *     const guard = new Guard({ mode: "observe" });
  *     // attach guard via an adapter (e.g. OpenClaw), run the agent,
  *     // then read guard.receipts and exportYaml("my-domain", guard.catalog).
  *
  * Enforce (once you have a tenant + an active domain):
  *
- *     import { Guard, HTTPClient, ToolMap } from "@kiffhq/kiff-guard";
+ *     import { Guard, HTTPClient, ToolMap } from "@kiff/kiff-guard";
  *     const client = new HTTPClient({
  *       apiKey: "kiff_live_...",
  *       toolMap: new ToolMap().bind("refund_order", "REFUND_ORDER", "Order", "order_id"),

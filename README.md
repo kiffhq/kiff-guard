@@ -16,7 +16,7 @@ from a blank policy file.
 > Part of [KIFF](https://kiff.dev) — air traffic control for AI agents.
 > This repo is the **client SDK + framework adapters**, MIT-licensed and
 > community-maintainable. The framework lives at
-> [`kiffhq/kiff`](https://github.com/kiffhq/kiff); the hosted runtime is
+> [`kiff/kiff`](https://github.com/kiff/kiff); the hosted runtime is
 > KIFF Cloud.
 
 ## Repository layout
@@ -73,7 +73,7 @@ agent = Agent(model=..., tools=[...], tool_hooks=[agno_hook(guard)])
 | Strands Agents | py | vote (`BeforeToolCallEvent`) | shipped |
 | Haystack Agents | py | vote (`ConfirmationStrategy`) | shipped |
 | Microsoft Agent Framework | py | middleware (`FunctionMiddleware`, async) | shipped |
-| OpenClaw | **ts** | vote (`before_tool_call`) | shipped (`@kiffhq/kiff-guard/adapters/openclaw`; seam + contract verified) |
+| OpenClaw | **ts** | vote (`before_tool_call`) | shipped (`@kiff/kiff-guard/adapters/openclaw`; seam + contract verified) |
 | LlamaIndex | py | middleware (`GuardedAgentWorkflow` subclass, async) | shipped |
 
 Two integration shapes: **middleware** (the guard runs the tool via a
@@ -101,12 +101,12 @@ See [`packages/js/README.md`](./packages/js/README.md) for install,
 quickstart, and usage.
 
 ```bash
-npm install @kiffhq/kiff-guard
+npm install @kiff/kiff-guard
 ```
 
 ```typescript
-import { Guard } from "@kiffhq/kiff-guard";
-import { registerKiffGuard } from "@kiffhq/kiff-guard/adapters/openclaw";
+import { Guard } from "@kiff/kiff-guard";
+import { registerKiffGuard } from "@kiff/kiff-guard/adapters/openclaw";
 
 const guard = new Guard({ mode: "observe" });  // zero-config audit
 // register on OpenClaw plugin api (see package README for full example)

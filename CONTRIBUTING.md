@@ -7,7 +7,7 @@ latest. Read this before opening a PR.
 ## What lives here
 
 kiff-guard is the **client SDK + framework adapters** for KIFF. It is not the
-KIFF framework (`kiffhq/kiff`) and not KIFF Cloud. It is a thin,
+KIFF framework (`kiff/kiff`) and not KIFF Cloud. It is a thin,
 framework-agnostic core plus one adapter per agent framework. Governance logic
 lives in the core once; adapters add none of their own.
 

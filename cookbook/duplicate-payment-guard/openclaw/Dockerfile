@@ -19,7 +19,7 @@ USER root
 # plugins.allow / plugins.entries keys.
 ENV EXT=/app/dist/extensions/kiff-guard-demo
 
-RUN mkdir -p "$EXT/node_modules/@kiffhq"
+RUN mkdir -p "$EXT/node_modules/@kiff"
 
 # 1. The compiled plugin (tsc output) + a minimal package.json that
 #    points the runtime at the entrypoint. We deliberately ship a
@@ -31,9 +31,9 @@ COPY openclaw/extension.package.json "$EXT/package.json"
 COPY openclaw/openclaw.plugin.json "$EXT/openclaw.plugin.json"
 
 # 2. The vendored kiff-guard SDK (self-contained: relative imports only,
-#    no openclaw runtime dependency) — resolves `@kiffhq/kiff-guard` and
-#    `@kiffhq/kiff-guard/adapters/openclaw`.
-COPY vendor/kiff-guard "$EXT/node_modules/@kiffhq/kiff-guard"
+#    no openclaw runtime dependency) — resolves `@kiff/kiff-guard` and
+#    `@kiff/kiff-guard/adapters/openclaw`.
+COPY vendor/kiff-guard "$EXT/node_modules/@kiff/kiff-guard"
 
 # 3. The peer link: an external plugin importing `openclaw/plugin-sdk/*`
 #    resolves it against the host package at /app.

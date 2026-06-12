@@ -13,7 +13,7 @@ state-aware gate stops the emergent repeat.
 
 ## Architecture (3 microservices)
 
-1. **kiff-decide** (Go): the KIFF gate. Wraps the real `github.com/kiffhq/kiff`
+1. **kiff-decide** (Go): the KIFF gate. Wraps the real `github.com/kiff/kiff`
    v0.2.0 runtime with a tiny payments domain (Invoice: PENDING → PAID).
    Exposes the decide contract the guard SDK calls.
 2. **ap-app** (Node): the system of record. Holds invoices + ledger. `/pay` is
@@ -23,7 +23,7 @@ state-aware gate stops the emergent repeat.
 3. **openclaw** (Docker): the OpenClaw gateway (`ghcr.io/openclaw/openclaw:latest`)
    with a baked `kiff-guard-demo` plugin. The plugin registers `pay_invoice`
    (calls ap-app /pay) AND a `before_tool_call` hook (from
-   `@kiffhq/kiff-guard/adapters/openclaw`) in ENFORCE mode. Before any tool
+   `@kiff/kiff-guard/adapters/openclaw`) in ENFORCE mode. Before any tool
    runs, KIFF decides.
 
 ## Prerequisites
@@ -156,10 +156,10 @@ Minimal working config:
 
 ---
 
-**4. The `@kiffhq/kiff-guard` vendor dep is a symlink in development — use
+**4. The `@kiff/kiff-guard` vendor dep is a symlink in development — use
 `cp -rL` (dereference) when copying it.**
 
-The plugin's `node_modules/@kiffhq/kiff-guard` resolves via a `file:` reference
+The plugin's `node_modules/@kiff/kiff-guard` resolves via a `file:` reference
 in `package.json` and is a symlink in the source tree. `cp -r` follows the
 symlink but the relative target breaks once moved. `cp -rL` dereferences it into
 real files. The Dockerfile handles this via `COPY vendor/kiff-guard $EXT/...`
@@ -175,7 +175,7 @@ dnf install -y docker git && systemctl enable --now docker && usermod -aG docker
 # install Go 1.23 and Node 22 from their official sources
 
 # 2. build kiff-decide (do this AFTER bootstrap, before OpenClaw):
-cd kiff-decide && go build -o kiff-decide .   # fetches github.com/kiffhq/kiff v0.2.0
+cd kiff-decide && go build -o kiff-decide .   # fetches github.com/kiff/kiff v0.2.0
 
 # 3. start core services (detached, before OpenClaw):
 bash start-core.sh    # kiff-decide on :8081, ap-app on :8082
@@ -290,7 +290,7 @@ duplicate-payment-guard/
 ├── kiff-decide/                the KIFF gate (Go)
 │   ├── main.go                 HTTP server: /v1/proposals/decide, /v1/events/raw, /seed
 │   ├── domain.go               payments domain: Invoice PENDING→PAID, PAY_INVOICE allowed only in PENDING
-│   └── go.mod                  depends on github.com/kiffhq/kiff v0.2.0
+│   └── go.mod                  depends on github.com/kiff/kiff v0.2.0
 ├── ap-app/
 │   └── server.js               system of record (Node stdlib only): /pay, /ledger, /reset
 ├── openclaw/
@@ -300,7 +300,7 @@ duplicate-payment-guard/
 │   └── openclaw.plugin.json    plugin manifest: pay_invoice tool + before_tool_call hook
 ├── openclaw-plugin/            the plugin source (TypeScript)
 │   ├── src/index.ts            definePluginEntry: pay_invoice tool + kiffBeforeToolCall(guard) hook
-│   ├── package.json            vendors @kiffhq/kiff-guard from ../vendor/kiff-guard
+│   ├── package.json            vendors @kiff/kiff-guard from ../vendor/kiff-guard
 │   └── tsconfig.json
 ├── vendor/
 │   └── kiff-guard/             the kiff-guard-js SDK (self-contained, no openclaw runtime dep)

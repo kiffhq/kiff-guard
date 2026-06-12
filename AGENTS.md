@@ -9,7 +9,7 @@ kiff-guard is the **client SDK + framework adapters** for KIFF — drop-in
 KIFF clearance in front of any agent's tool calls. MIT-licensed,
 community-maintainable.
 
-- It is **not** the KIFF framework (that's `kiffhq/kiff`, Go).
+- It is **not** the KIFF framework (that's `kiff/kiff`, Go).
 - It is **not** the hosted runtime (that's KIFF Cloud).
 - It is a thin, framework-agnostic **core** plus one **adapter** per agent
   framework. The guard logic lives in the core, once; an adapter adds no

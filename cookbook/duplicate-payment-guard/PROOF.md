@@ -2,8 +2,8 @@
 
 **Date**: 2026-06-01  
 **Instance**: EC2 t3.large, us-east-1 (ephemeral, torn down after proof)  
-**Framework**: github.com/kiffhq/kiff v0.2.0 (public, MIT)  
-**Guard SDK**: @kiffhq/kiff-guard v0.1.0 (TypeScript, MIT)  
+**Framework**: github.com/kiff/kiff v0.2.0 (public, MIT)  
+**Guard SDK**: @kiff/kiff-guard v0.1.0 (TypeScript, MIT)  
 **Gateway**: ghcr.io/openclaw/openclaw:latest (2026-05-28)  
 **Model**: OpenAI gpt-4o-mini  
 
@@ -113,7 +113,7 @@ Exit code: 0 (proof passed)
 └──────────────────────┘          │  - /v1/entities/{id}/state   │
                                   │                              │
                                   │  Wraps:                      │
-                                  │  github.com/kiffhq/kiff      │
+                                  │  github.com/kiff/kiff      │
                                   │  v0.2.0 (public framework)   │
                                   └──────────────────────────────┘
 ```
@@ -129,8 +129,8 @@ Exit code: 0 (proof passed)
    `node_modules/openclaw → /app` peer link.
 
 3. **Vendored SDK resolution**: the plugin's `import { Guard, HTTPClient,
-   ToolMap } from "@kiffhq/kiff-guard"` resolved via the baked
-   `node_modules/@kiffhq/kiff-guard/` (self-contained, no openclaw runtime
+   ToolMap } from "@kiff/kiff-guard"` resolved via the baked
+   `node_modules/@kiff/kiff-guard/` (self-contained, no openclaw runtime
    dep).
 
 4. **Hook registration**: the `before_tool_call` hook registered by

@@ -23,7 +23,7 @@
  *
  * This module imports nothing from OpenClaw at runtime — it only matches
  * the hook signature and the BeforeToolCallResult shape, so importing
- * @kiffhq/kiff-guard never requires the openclaw package. The types below
+ * @kiff/kiff-guard never requires the openclaw package. The types below
  * mirror the verified plugin-SDK contract.
  */
 
@@ -149,8 +149,8 @@ export interface OpenClawPluginApi {
  * plugin's `register(api)`:
  *
  *     import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
- *     import { Guard } from "@kiffhq/kiff-guard";
- *     import { registerKiffGuard } from "@kiffhq/kiff-guard/adapters/openclaw";
+ *     import { Guard } from "@kiff/kiff-guard";
+ *     import { registerKiffGuard } from "@kiff/kiff-guard/adapters/openclaw";
  *
  *     const guard = new Guard({ mode: "observe" });
  *     export default definePluginEntry({

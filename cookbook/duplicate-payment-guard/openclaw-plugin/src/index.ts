@@ -8,7 +8,7 @@
 //
 //   1. a `pay_invoice` tool that calls the ap-app /pay endpoint (the
 //      real side effect — the debit).
-//   2. a `before_tool_call` hook (from @kiffhq/kiff-guard/adapters/openclaw)
+//   2. a `before_tool_call` hook (from @kiff/kiff-guard/adapters/openclaw)
 //      in ENFORCE mode, pointed at the KIFF decide server. Before any
 //      tool runs, KIFF decides. PAY_INVOICE on a PENDING invoice ->
 //      allowed; the retry on a now-PAID invoice -> blocked, and the tool
@@ -26,8 +26,8 @@
 //   KIFF_CLOUD_WORKFLOW     - workflow grouping, defaults to duplicate-payment
 
 import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
-import { Guard, HTTPClient, ToolMap, VERSION } from "@kiffhq/kiff-guard";
-import { kiffBeforeToolCall } from "@kiffhq/kiff-guard/adapters/openclaw";
+import { Guard, HTTPClient, ToolMap, VERSION } from "@kiff/kiff-guard";
+import { kiffBeforeToolCall } from "@kiff/kiff-guard/adapters/openclaw";
 
 const KIFF_BASE = process.env.KIFF_BASE_URL || "http://kiff-decide:8081";
 const AP_APP = process.env.AP_APP_URL || "http://ap-app:8082";

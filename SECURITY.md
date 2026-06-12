@@ -12,7 +12,7 @@ relevant to this repo include:
 - Dependency vulnerabilities in the optional adapter extras
 - Credential or secret leakage in cookbook recipes or test fixtures
 
-Issues in the KIFF Cloud runtime or the KIFF framework (`kiffhq/kiff`) should
+Issues in the KIFF Cloud runtime or the KIFF framework (`kiff/kiff`) should
 be reported to those repos respectively.
 
 ## Reporting a vulnerability
@@ -20,7 +20,7 @@ be reported to those repos respectively.
 Please **do not** open a public GitHub issue for security vulnerabilities.
 
 Report privately via GitHub's security advisory feature:
-**[Report a vulnerability](https://github.com/kiffhq/kiff-guard/security/advisories/new)**
+**[Report a vulnerability](https://github.com/kiff/kiff-guard/security/advisories/new)**
 
 Or email: **security@kiff.dev**
 

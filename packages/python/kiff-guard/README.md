@@ -161,7 +161,7 @@ once; an adapter adds no governance logic of its own.
 | Haystack Agents | `kiff_guard.adapters.haystack` | shipped |
 | Microsoft Agent Framework | `kiff_guard.adapters.microsoft_agent_framework` | shipped |
 | LlamaIndex | `kiff_guard.adapters.llama_index` | shipped |
-| OpenClaw (TypeScript) | `@kiffhq/kiff-guard/adapters/openclaw` (`packages/js`) | shipped |
+| OpenClaw (TypeScript) | `@kiff/kiff-guard/adapters/openclaw` (`packages/js`) | shipped |
 
 Each adapter documents its verified pre-tool-execution seam and block
 contract in its module docstring. See the two adapter shapes below.

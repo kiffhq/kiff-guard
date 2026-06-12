@@ -14,7 +14,7 @@ duplicate-payment-guard/
 ├── kiff-decide/                        # Service 1: the KIFF gate (Go)
 │   ├── main.go                         # HTTP server: decide, ingest, seed, state
 │   ├── domain.go                       # Payments domain: Invoice PENDING→PAID
-│   └── go.mod                          # Depends on github.com/kiffhq/kiff v0.2.0
+│   └── go.mod                          # Depends on github.com/kiff/kiff v0.2.0
 │
 ├── ap-app/                             # Service 2: system of record (Node)
 │   └── server.js                       # /pay, /ledger, /reset (stdlib only, no deps)
@@ -27,12 +27,12 @@ duplicate-payment-guard/
 │
 ├── openclaw-plugin/                    # The kiff-guard-demo plugin source
 │   ├── src/index.ts                    # definePluginEntry: tool + hook
-│   ├── package.json                    # Vendors @kiffhq/kiff-guard from ../vendor
+│   ├── package.json                    # Vendors @kiff/kiff-guard from ../vendor
 │   ├── openclaw.plugin.json            # Manifest (synced to openclaw/)
 │   └── tsconfig.json                   # NodeNext, outDir: ./dist
 │
 ├── vendor/                             # Vendored dependencies
-│   └── kiff-guard/                     # @kiffhq/kiff-guard v0.1.0 (TypeScript SDK)
+│   └── kiff-guard/                     # @kiff/kiff-guard v0.1.0 (TypeScript SDK)
 │       ├── package.json                # Exports: . and ./adapters/openclaw
 │       └── dist/                       # Compiled JS + .d.ts (self-contained)
 │           ├── index.js, index.d.ts
@@ -89,10 +89,10 @@ duplicate-payment-guard/
 ## External dependencies (fetched at build time)
 
 ### Go (kiff-decide)
-- `github.com/kiffhq/kiff v0.2.0` (public framework, MIT)
+- `github.com/kiff/kiff v0.2.0` (public framework, MIT)
 
 ### Node (openclaw-plugin)
-- `@kiffhq/kiff-guard` (vendored in `vendor/kiff-guard/`, MIT)
+- `@kiff/kiff-guard` (vendored in `vendor/kiff-guard/`, MIT)
 - `openclaw` peer (resolved via symlink to /app in the derived image)
 - `typescript` (devDep, for `npm run build`)
 

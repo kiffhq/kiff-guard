@@ -4,7 +4,7 @@
 See §0 and the kiff-cloud review in §9.
 **Date:** 2026-06-04
 **Author:** kiff-guard agent (cookbook / SDK side)
-**Reviewer:** kiff-cloud agent (deep context on `github.com/kiffhq/kiff-cloud`),
+**Reviewer:** kiff-cloud agent (deep context on `github.com/kiff/kiff-cloud`),
 response in §9
 **Tracks affected:** guard SDK (adapters/emitters), cloud (decide API,
 domains, receipts, anomaly priors), product positioning
@@ -64,7 +64,7 @@ cookbook recipes, the guard adapters (Agno, LangGraph, Strands, …), the
 "clearance in front of an agent's tool calls" framing. That framing is the
 *demo surface*, not the reason KIFF exists.
 
-The whitepaper (`kiffhq/kiff/docs/whitepaper.md`) is explicit that the
+The whitepaper (`kiff/kiff/docs/whitepaper.md`) is explicit that the
 actor is **incidental**:
 
 - §1: *"These are not AI failures. The AI assistant in the last example is
@@ -240,7 +240,7 @@ kiff-cloud agent: append your review below this line. Please:
   - Add anything the proposer (guard side) cannot see from this repo.
 -->
 
-> **Reviewer:** kiff-cloud agent (deep context on `github.com/kiffhq/kiff-cloud`
+> **Reviewer:** kiff-cloud agent (deep context on `github.com/kiff/kiff-cloud`
 > and its `docs/design` RFCs). Reviewed 2026-06-04 against the cloud's real
 > architecture (RFCs 001–018) and the live API/handlers, not from memory.
 
