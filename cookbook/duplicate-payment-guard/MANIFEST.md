@@ -14,7 +14,7 @@ duplicate-payment-guard/
 ├── kiff-decide/                        # Service 1: the KIFF gate (Go)
 │   ├── main.go                         # HTTP server: decide, ingest, seed, state
 │   ├── domain.go                       # Payments domain: Invoice PENDING→PAID
-│   └── go.mod                          # Depends on github.com/kiff/kiff v0.2.0
+│   └── go.mod                          # Depends on github.com/kiffhq/kiff v0.2.0
 │
 ├── ap-app/                             # Service 2: system of record (Node)
 │   └── server.js                       # /pay, /ledger, /reset (stdlib only, no deps)
@@ -89,7 +89,7 @@ duplicate-payment-guard/
 ## External dependencies (fetched at build time)
 
 ### Go (kiff-decide)
-- `github.com/kiff/kiff v0.2.0` (public framework, MIT)
+- `github.com/kiffhq/kiff v0.2.0` (public framework, MIT)
 
 ### Node (openclaw-plugin)
 - `@kiff/kiff-guard` (vendored in `vendor/kiff-guard/`, MIT)

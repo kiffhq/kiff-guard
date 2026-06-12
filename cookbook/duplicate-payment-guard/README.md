@@ -13,7 +13,7 @@ state-aware gate stops the emergent repeat.
 
 ## Architecture (3 microservices)
 
-1. **kiff-decide** (Go): the KIFF gate. Wraps the real `github.com/kiff/kiff`
+1. **kiff-decide** (Go): the KIFF gate. Wraps the real `github.com/kiffhq/kiff`
    v0.2.0 runtime with a tiny payments domain (Invoice: PENDING → PAID).
    Exposes the decide contract the guard SDK calls.
 2. **ap-app** (Node): the system of record. Holds invoices + ledger. `/pay` is
@@ -214,6 +214,34 @@ OPENCLAW_GATEWAY_TOKEN=<token> node handshake_test.mjs
 
 ---
 
+**6. The KIFF gate is pinned to `github.com/kiffhq/kiff v0.2.0` — a
+version-bound module path, not a stale org name.**
+
+`kiff-decide/go.mod` requires `github.com/kiffhq/kiff` (the old org path),
+**not** `github.com/kiff/kiff`. This is deliberate and load-bearing:
+
+- The framework re-declared its Go module path from `github.com/kiffhq/kiff`
+  to `github.com/kiff/kiff` **at v0.4.0**. `v0.2.0` — the version this
+  recipe's proof was captured against — only exists under the old
+  `kiffhq/kiff` path. Rewriting the import to `github.com/kiff/kiff v0.2.0`
+  does **not** resolve (`module declares its path as github.com/kiffhq/kiff`)
+  and breaks `go build`. `v0.2.0` stays fetchable forever via the Go module
+  proxy, so the pin is durable.
+- A blanket `kiffhq`→`kiff` rename therefore broke this gate (the build
+  failed; or, built against `v0.4.0`, KIFF returned `permission_denied`
+  because v0.4.0 changed the actor/role model). The WITH-KIFF scenario
+  failing is a **gate build/version** problem, not the gateway handshake and
+  not a device-identity requirement (see #5 — the agent-run RPC is not
+  device-gated on the pinned image).
+
+**Follow-up debt (tracked):** migrate the gate to `github.com/kiff/kiff
+v0.4.0+`. That is a real migration, not a find-and-replace — v0.4.0 changes
+the permission model, so `domain.go`/`main.go` need adjusting and the proof
+needs re-validating, across all cookbook recipes. Do it as a dedicated PR
+after the Studio integration lands, not folded into a spike unblock.
+
+---
+
 **Verified step order (the one that works, on Amazon Linux 2023 / t3.large):**
 
 ```bash
@@ -222,7 +250,7 @@ dnf install -y docker git && systemctl enable --now docker && usermod -aG docker
 # install Go 1.23 and Node 22 from their official sources
 
 # 2. build kiff-decide (do this AFTER bootstrap, before OpenClaw):
-cd kiff-decide && go build -o kiff-decide .   # fetches github.com/kiff/kiff v0.2.0
+cd kiff-decide && go build -o kiff-decide .   # fetches github.com/kiffhq/kiff v0.2.0
 
 # 3. start core services (detached, before OpenClaw):
 bash start-core.sh    # kiff-decide on :8081, ap-app on :8082
@@ -337,7 +365,7 @@ duplicate-payment-guard/
 ├── kiff-decide/                the KIFF gate (Go)
 │   ├── main.go                 HTTP server: /v1/proposals/decide, /v1/events/raw, /seed
 │   ├── domain.go               payments domain: Invoice PENDING→PAID, PAY_INVOICE allowed only in PENDING
-│   └── go.mod                  depends on github.com/kiff/kiff v0.2.0
+│   └── go.mod                  depends on github.com/kiffhq/kiff v0.2.0
 ├── ap-app/
 │   └── server.js               system of record (Node stdlib only): /pay, /ledger, /reset
 ├── openclaw/
