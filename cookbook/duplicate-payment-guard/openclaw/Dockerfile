@@ -11,7 +11,22 @@
 #
 # Build context = the recipe root (so COPY can reach openclaw-plugin/,
 # openclaw/, and vendor/).
-FROM ghcr.io/openclaw/openclaw:latest
+#
+# Pinned, NOT floating `:latest`. The gateway's connect policy is
+# version-sensitive: the device-less "trusted backend over loopback"
+# handshake this recipe uses (driver/ocgw.mjs: client.id "gateway-client",
+# mode "backend", operator role + shared token) is admitted by
+# shouldSkipLocalBackendSelfPairing(), which is gated on the gateway
+# seeing a loopback remote (the `--network host` topology in
+# start-openclaw.sh provides this). A floating `:latest` silently rolled
+# this path stricter and the gated scenario started failing the connect
+# with "device identity required" (NOT_PAIRED) — pure upstream drift, not
+# a logic bug in ocgw.mjs. Pinning freezes a build empirically verified to
+# honor the backend path (full operator scopes returned on loopback, no
+# device identity required). Re-pin deliberately after testing a newer tag.
+#
+# 2026.6.6, by immutable multi-arch (amd64+arm64) index digest.
+FROM ghcr.io/openclaw/openclaw:2026.6.6@sha256:4826ca6157377e93463786d5c16852e34eede9f4bd4be55e3773cdc509762857
 
 USER root
 
