@@ -2,7 +2,7 @@
 
 **Date**: 2026-06-01  
 **Instance**: EC2 t3.large, us-east-1 (ephemeral, torn down after proof)  
-**Framework**: github.com/kiff/kiff v0.2.0 (public, MIT)  
+**Framework**: github.com/kiffhq/kiff v0.2.0 (public, MIT)  
 **Guard SDK**: @kiff/kiff-guard v0.1.0 (TypeScript, MIT)  
 **Gateway**: ghcr.io/openclaw/openclaw:latest (2026-05-28)  
 **Model**: OpenAI gpt-4o-mini  
@@ -113,7 +113,7 @@ Exit code: 0 (proof passed)
 └──────────────────────┘          │  - /v1/entities/{id}/state   │
                                   │                              │
                                   │  Wraps:                      │
-                                  │  github.com/kiff/kiff      │
+                                  │  github.com/kiffhq/kiff    │
                                   │  v0.2.0 (public framework)   │
                                   └──────────────────────────────┘
 ```
