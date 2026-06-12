@@ -20,7 +20,7 @@ duplicate-payment-guard/
 │   └── server.js                       # /pay, /ledger, /reset (stdlib only, no deps)
 │
 ├── openclaw/                           # Service 3: OpenClaw gateway config + Dockerfile
-│   ├── Dockerfile                      # Derives from ghcr.io/openclaw/openclaw:latest, bakes plugin
+│   ├── Dockerfile                      # Derives from ghcr.io/openclaw/openclaw:2026.6.6 (pinned by digest), bakes plugin
 │   ├── openclaw.json                   # Gateway config: openai provider, plugins.allow
 │   ├── extension.package.json          # Minimal package.json for baked plugin
 │   └── openclaw.plugin.json            # Plugin manifest: pay_invoice + before_tool_call
@@ -97,7 +97,10 @@ duplicate-payment-guard/
 - `typescript` (devDep, for `npm run build`)
 
 ### Docker (openclaw)
-- Base image: `ghcr.io/openclaw/openclaw:latest` (public, as of 2026-05-30)
+- Base image: `ghcr.io/openclaw/openclaw:2026.6.6` (public, MIT), pinned by
+  immutable multi-arch digest `@sha256:4826ca61…762857` in `openclaw/Dockerfile`.
+  Pinned (not `:latest`) because the gateway's device-less backend connect
+  policy is version-sensitive — see README non-obvious part #5.
 
 ## Verification checklist
 

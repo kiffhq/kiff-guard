@@ -20,7 +20,8 @@ state-aware gate stops the emergent repeat.
    deliberately NON-idempotent (the honest baseline: a duplicate /pay WILL
    debit again). After a real debit, tells the gate to advance the invoice to
    PAID.
-3. **openclaw** (Docker): the OpenClaw gateway (`ghcr.io/openclaw/openclaw:latest`)
+3. **openclaw** (Docker): the OpenClaw gateway (pinned to
+   `ghcr.io/openclaw/openclaw:2026.6.6` by digest — see non-obvious part #5)
    with a baked `kiff-guard-demo` plugin. The plugin registers `pay_invoice`
    (calls ap-app /pay) AND a `before_tool_call` hook (from
    `@kiff/kiff-guard/adapters/openclaw`) in ENFORCE mode. Before any tool
@@ -123,7 +124,7 @@ RUN ln -sf /app "$EXT/node_modules/openclaw" && chown -R node:node "$EXT"
 ---
 
 **3. The gateway config schema is strict — unknown or wrong-type fields cause a
-startup failure.** Key requirements for `ghcr.io/openclaw/openclaw:latest`:
+startup failure.** Key requirements for the gateway image:
 
 - `models.providers.openai.models` must be an **array of objects** with both
   `id` and `name` — bare strings `["gpt-4o-mini"]` or objects with only `id`
@@ -167,6 +168,52 @@ from the recipe root.
 
 ---
 
+**5. The gateway image is PINNED, and the device-less backend handshake
+requires the gateway to see a loopback remote.**
+
+The driver connects over the gateway's "trusted same-process backend" path
+(`driver/ocgw.mjs`: `client.id: "gateway-client"`, `mode: "backend"`,
+`role: "operator"` + the shared token, no device keypair). The current gateway
+admits this device-less connect through one policy branch —
+`shouldSkipLocalBackendSelfPairing()` in
+`src/gateway/server/ws-connection/handshake-auth-helpers.ts` — and that branch
+is gated on the gateway resolving the connection as **loopback-local**
+(`direct_local` or `shared_secret_loopback_local`, i.e. the remote address is
+`127.0.0.1`). The `--network host` run in `start-openclaw.sh` is what makes the
+driver→gateway connection genuine loopback, so this holds on the Linux EC2 box.
+
+Two ways this bites you:
+
+- **Floating `:latest` drift (the regression this pin fixes).** The connect
+  policy is version-sensitive. A newer `:latest` rolled the device-less path
+  stricter and the gated "WITH KIFF" scenario began failing the connect with
+  `device identity required` (gateway error `NOT_PAIRED`, WS close `1008`) at
+  `driver/ocgw.mjs`. This is upstream version drift, not a bug in `ocgw.mjs`.
+  The fix: `openclaw/Dockerfile` now pins
+  `ghcr.io/openclaw/openclaw:2026.6.6` by immutable multi-arch digest
+  (`@sha256:4826ca61…762857`), a build verified to honor the backend path
+  (full `operator.*` scopes returned, no device identity required). Re-pin
+  deliberately after testing a newer tag against `driver/handshake_test.mjs`.
+
+- **Non-loopback remote silently strips scopes.** If the gateway sees the
+  connection from a non-loopback address (e.g. Docker `-p` port-mapping, or
+  `--network host` on Docker Desktop for macOS, which routes through a VM), the
+  connect still *succeeds* but the gateway clears the self-declared scopes to
+  `[]`, and every RPC then fails with `missing scope: operator.*`. Reproduce
+  the real topology on a Linux host with `--network host` (or probe from inside
+  the gateway's network namespace) so the remote is true loopback.
+
+To check the handshake in isolation (no model, no plugin):
+
+```bash
+cd driver && npm install ws
+OPENCLAW_GATEWAY_TOKEN=<token> node handshake_test.mjs
+# expect: HANDSHAKE OK + auth.scopes = ["operator.read","operator.write",
+#         "operator.approvals","operator.admin"]  (NOT [] and NOT device-required)
+```
+
+---
+
 **Verified step order (the one that works, on Amazon Linux 2023 / t3.large):**
 
 ```bash
@@ -181,7 +228,7 @@ cd kiff-decide && go build -o kiff-decide .   # fetches github.com/kiff/kiff v0.
 bash start-core.sh    # kiff-decide on :8081, ap-app on :8082
 
 # 4. pull + build the derived OpenClaw image:
-docker pull ghcr.io/openclaw/openclaw:latest
+docker pull ghcr.io/openclaw/openclaw:2026.6.6   # pinned; see non-obvious part #5
 docker build -t kiff-cookbook-openclaw:local -f openclaw/Dockerfile .
 
 # 5. run the gateway (host network, so it reaches :8081 and :8082):
